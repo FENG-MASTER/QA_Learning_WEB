@@ -5,8 +5,12 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
+def index():
     return render_template('Search.html')
+
+@app.route('/result/')
+def result():
+    return render_template('Result.html')
 
 
 if __name__ == '__main__':
