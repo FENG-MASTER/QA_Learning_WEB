@@ -1,63 +1,45 @@
 {% extends "base.html" %}
 {% block title %}搜索结果{% endblock %}
 {% block main %}
-    <div >
+
+
+    <div>
         <div class="container">
 
             <div class="column">
-                <div class="col-xs-12">
-                    <div class="card mb-4 box-shadow">
-                        <a class="text-dark" >标题</a>
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+
+                {% for ans in resultList %}
+                    <div class="col-xs-12">
+                        <div class="card mb-4 box-shadow">
+
+                            <a class="text-right text-dark">
+                                <small class="text-muted">来自问题:</small>
+                                {{ ans.question_title }}</a>
+                            <div class="card-body">
+                                {% autoescape false %}
+                                <div class="text-dark">
+                                    {{ ans.excerpt }}</div>
+                                {% endautoescape %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a type="button" class="btn btn-sm btn-outline-secondary" href="{{url_for('answer',answer_id=ans.answer_id) }}">查看</a>
+                                    </div>
+                                    <small class="text-muted"><img src="/static/img/ico/voteup.png"
+                                                                   style="height: 1pc;width: 1pc" class="img-circle"/>{{ ans.voteup_count }}
+                                    </small>
+                                    <small class="text-muted"><img src="/static/img/ico/comment.png"
+                                                                   style="height: 1pc;width: 1pc" class="img-circle"/>{{ ans.comment_count }}
+                                    </small>
+                                    <small class="text-muted"><img src="/static/img/ico/update_time.png"
+                                                                   style="height: 1pc;width: 1pc" class="img-circle"/>{{ ans.update_time }}
+                                    </small>
                                 </div>
-                                <small class="text-muted">9 mins</small>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-xs-12">
-                    <div class="card mb-4 box-shadow">
-                       <a class="text-dark" >标题</a>
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                </div>
-                                <small class="text-muted">9 mins</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12">
-                    <div class="card mb-4 box-shadow">
-                       <a class="text-dark" >标题</a>
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                </div>
-                                <small class="text-muted">9 mins</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
 
-
-
-
+                {% endfor %}
 
             </div>
         </div>

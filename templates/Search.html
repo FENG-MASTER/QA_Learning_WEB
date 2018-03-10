@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 {% block title %}搜索{% endblock %}
 {% block main %}
-    <input class="form-control input-lg" type="text" placeholder="输入你所疑惑的事情" aria-label="Search">
-    <p></p>
 
-    <button class="btn btn-success btn-lg" type="submit">解惑</button>
+    <form class="form-horizontal " method="post" action="{{ url_for('result') }}">
+        <input name="question" class="form-control input-lg " type="text" placeholder="输入你所疑惑的事情" aria-label="Search">
+        <p></p>
+
+        <button class="btn btn-success btn-lg" type="submit">解惑</button>
+    </form>
+
+
 
 
 {% endblock %}
