@@ -38,6 +38,9 @@ def answer(answer_id):
 @app.route('/result/', methods=['GET', 'POST'])
 def result():
     answer_id_list = get_all_answer_list(request.form['question'])
+    if answer_id_list is None or len(answer_id_list)==0:
+        return render_template('NoFound.html',search_question=request.form['question'])
+
     answer_list = get_answers_by_ids(answer_id_list[0:100])
 
     return render_template('Result.html', resultList=answer_list)
@@ -54,7 +57,7 @@ def get_answers_by_ids(id_list):
 
 
 def get_all_answer_list(question):
-    tags = jieba.analyse.extract_tags(question, topK=8, withWeight=True)
+    tags = jieba.analyse.extract_tags(question, topK=8, withWeight=True,allowPOS=['ns', 'n', 'vn', 'v','nr'])
 
     # 问题关键词ID列表
     ques_key_word_ids = [db.get_key_word_id(t[0]) for t in tags]
@@ -112,39 +115,41 @@ def get_all_answer_list(question):
 
         _key_word_index += 1
 
-    for c in new_question_id_key_word_weight_score_map:
-        # 计算问题相关度的分数
-        item = new_question_id_key_word_weight_score_map[c]
-        wl = item[1]
-        _score = 0
-        for s in wl:
-            _score += s
-        item[2] = _score * item[0]
-        new_question_id_key_word_weight_score_map[c] = item
+    if len(new_question_id_key_word_weight_score_map)!=0:
 
-    new_question_id_list = []
-    new_question_level_list = []
-    new_question_score_list = []
-    new_question_weight_list = []
+        for c in new_question_id_key_word_weight_score_map:
+            # 计算问题相关度的分数
+            item = new_question_id_key_word_weight_score_map[c]
+            wl = item[1]
+            _score = 0
+            for s in wl:
+                _score += s
+            item[2] = _score * item[0]
+            new_question_id_key_word_weight_score_map[c] = item
 
-    for qis in new_question_id_key_word_weight_score_map:
-        new_question_id_list.append(qis)
-        new_question_level_list.append(new_question_id_key_word_weight_score_map[qis][0])
-        new_question_weight_list.append(new_question_id_key_word_weight_score_map[qis][1])
-        new_question_score_list.append(new_question_id_key_word_weight_score_map[qis][2])
+        new_question_id_list = []
+        new_question_level_list = []
+        new_question_score_list = []
+        new_question_weight_list = []
 
-    new_question_score_list = preprocessing.MinMaxScaler().fit_transform(
-        array(new_question_score_list).reshape(-1, 1)).tolist()
-    # new_question_weight_list = preprocessing.MinMaxScaler().fit_transform(array(new_question_weight_list)).tolist()
+        for qis in new_question_id_key_word_weight_score_map:
+            new_question_id_list.append(qis)
+            new_question_level_list.append(new_question_id_key_word_weight_score_map[qis][0])
+            new_question_weight_list.append(new_question_id_key_word_weight_score_map[qis][1])
+            new_question_score_list.append(new_question_id_key_word_weight_score_map[qis][2])
 
-    new_question_id_key_word_weight_score_map.clear()
+        new_question_score_list = preprocessing.MinMaxScaler().fit_transform(
+            array(new_question_score_list).reshape(-1, 1)).tolist()
+        # new_question_weight_list = preprocessing.MinMaxScaler().fit_transform(array(new_question_weight_list)).tolist()
 
-    for _index in range(len(new_question_id_list)):
-        _qid = int(new_question_id_list[_index])
-        _level = new_question_level_list[_index]
-        _weight = new_question_weight_list[_index]
-        _score = new_question_score_list[_index][0]
-        new_question_id_key_word_weight_score_map[_qid] = [_level, _weight, _score]
+        new_question_id_key_word_weight_score_map.clear()
+
+        for _index in range(len(new_question_id_list)):
+            _qid = int(new_question_id_list[_index])
+            _level = new_question_level_list[_index]
+            _weight = new_question_weight_list[_index]
+            _score = new_question_score_list[_index][0]
+            new_question_id_key_word_weight_score_map[_qid] = [_level, _weight, _score]
 
 
         # -----------------提取含有问题关键词的问题列表-----------------#
@@ -210,8 +215,13 @@ def get_all_answer_list(question):
 
         test_ALL_X.append(feature)
 
+    if len(test_ALL_X)==0:
+        return None
+
     test_arr_x = array(test_ALL_X)
     test_arr_x = np.hsplit(test_arr_x, (13,))
+
+
 
     s = qa_model.predict(np.hstack((preprocessing.MinMaxScaler().fit_transform(test_arr_x[0]), test_arr_x[1])))
     score_list = np.vstack((array(list(ans_id_list)), array(s)))
